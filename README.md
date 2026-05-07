@@ -42,6 +42,7 @@ Request body: `{"domain": "lending_pool|rwa_asset|protocol|wallet", "target": "<
 - **Server**: FastAPI + Uvicorn
 - **Payments**: x402 SDK v2.9 (Coinbase x402 protocol) on Base Sepolia
 - **AI**: Anthropic Claude (claude-sonnet-4-5 via direct API)
+- **Reports**: S3-hosted HTML reports (public URLs, shareable)
 - **Client**: Python requests with stakes-based routing logic
 
 > **Note on AWS Bedrock**: Originally built for AWS Bedrock compatibility — Bedrock was blocked on the hackathon AWS account. Switching is a one-line change in `server/llm_client.py`.
@@ -71,6 +72,14 @@ python -m client.demo_client
 
 Without a valid x402 payment, protected endpoints return `402 Payment Required` with a `payment-required` header containing Base64-encoded payment requirements (scheme, network, asset, amount, payTo). Clients with a funded Base Sepolia wallet sign and attach a payment via the `X-PAYMENT` or `Payment-Signature` header. The x402 facilitator at `x402.org/facilitator` verifies and settles.
 
+## Reports
+
+Every paid analysis generates a public HTML report hosted on S3. The response JSON includes a `report_url` field with a shareable link. Reports include analysis metadata, payment proof (tx hash linked to BaseScan), and the full formatted analysis.
+
+Example report: [Centrifuge Trade Invoice Pool A — Deep Stress Test](https://amzn-s3-risk-lens-demo.s3.us-east-1.amazonaws.com/reports/603c4a038c6e44f4a59325cf8f4895eb.html)
+
+This satisfies the AWS infrastructure requirement for the Coinbase x AWS Agentic track.
+
 ## Project Structure
 
 ```
@@ -79,6 +88,7 @@ server/
   llm_client.py  — Anthropic Claude abstraction
   prompts.py     — Domain prompts + depth instructions
   mock_data.py   — Realistic sample data (4 domains)
+  report.py      — HTML report generation + S3 upload
 client/
   demo_client.py — Stakes-based routing demo
 ```

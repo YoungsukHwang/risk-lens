@@ -32,19 +32,25 @@
 
   >> Calling /risk-analysis-quick with x402 payment ...
   >> Payment settled on Base Sepolia!
-     Tx: 0x215f9e8d2f46f61f97050b7e012e9b0562b19e368314a873f90cc2b4855aeaf8
-     Explorer: https://sepolia.basescan.org/tx/0x215f9e8d2f46f61f97050b7e012e9b0562b19e368314a873f90cc2b4855aeaf8
+     Tx: 0x9c4d813b236cb603bdd26505774f88c7888a1d1ac8bfa5309d766d3eedca375e
+     Explorer: https://sepolia.basescan.org/tx/0x9c4d813b236cb603bdd26505774f88c7888a1d1ac8bfa5309d766d3eedca375e
+     Report: https://amzn-s3-risk-lens-demo.s3.us-east-1.amazonaws.com/reports/ee03894f18444d56ab595eb0e5acc547.html
 
   >> Analysis received (quick tier, max_tokens=400):
 
-     ## Risk Assessment: Goldfinch Senior Pool
+     # Risk Assessment: Goldfinch Senior Pool
      
-     **Risk Score:** 72/100  
-     **Letter Rating:** C
+     **Risk Score: 72/100**  
+     **Rating: C+**
      
-     **Top Concern:** The extreme 92% utilization rate combined with off-chain, uncollateralized real-world asset exposure in emerging markets creates severe liquidity risk and limits the protocol's ability to absorb defaults beyond the minimal $5M insurance buffer (5.7% of TVL).
+     **Top Concern:** Extremely high utilization rate (92%) combined with off-chain, unsecured real-world asset collateral creates severe liquidity risk and limited recovery mechanisms in default scenarios.
      
-     **Key Issues:** Borrower concentration (18%), 4.5% historical defaults, lack of on-chain collateral verification, and geographic concentration in high-risk jurisdictions compound systemic risks.
+     **Key Risks:**
+     - No on-chain collateral or liquidation mechanism
+     - Historical 4.5% default rate with only 5.7% insurance coverage
+     - Significant emerging market concentration (political/currency risks)
+     - Top borrower at 18% creates concentration vulnerability
+     - Capital trapped in 365-day loans with minimal exit liquidity
 
 
 ========================================================================
@@ -60,8 +66,9 @@
 
   >> Calling /risk-analysis-standard with x402 payment ...
   >> Payment settled on Base Sepolia!
-     Tx: 0x4fae4b8eeeb1a7e5e38bd8bad970bb7fa9c832c606b196c154c65c5222d763fd
-     Explorer: https://sepolia.basescan.org/tx/0x4fae4b8eeeb1a7e5e38bd8bad970bb7fa9c832c606b196c154c65c5222d763fd
+     Tx: 0xce0fbd27e7e2687f2886bd0c52a581eb0282ad47608e54af0d9b2505a9dac418
+     Explorer: https://sepolia.basescan.org/tx/0xce0fbd27e7e2687f2886bd0c52a581eb0282ad47608e54af0d9b2505a9dac418
+     Report: https://amzn-s3-risk-lens-demo.s3.us-east-1.amazonaws.com/reports/cdbe7de37ede40c3a7aa99294e1670b0.html
 
   >> Analysis received (standard tier, max_tokens=1500):
 
@@ -69,136 +76,146 @@
      
      ## Executive Summary
      **Composite Risk Score:** 22/100 (Lower is better)  
-     **Letter Rating:** A-  
-     **Classification:** Low-to-Moderate Risk Protocol
+     **Letter Rating:** A  
+     **Classification:** Low-to-Moderate Risk
      
-     Aave v3 represents one of the most battle-tested and institutionally robust DeFi lending protocols with exceptional audit coverage, significant liquidity depth, and sophisticated risk management features. While multi-chain deployment and oracle dependencies introduce moderate systemic risks, the protocol's strong governance, proven liquidation mechanisms, and $2M bug bounty program substantially mitigate operational vulnerabilities.
-     
-     ---
-     
-     ## 1. Credit Risk Analysis
-     **Risk Score: 18/100** ⚠️ Low Risk
-     
-     ### Counterparty Exposure
-     - **Borrower Default Protection:** Automated liquidation mechanism with variable close factors provides dynamic risk adjustment
-     - **Over-collateralization Requirements:** E-mode categories enable efficient capital usage while maintaining safety buffers (stablecoins, ETH-correlated assets, low-volatility categories)
-     - **85 Active Markets:** Diversified asset exposure reduces concentration risk
-     - **Liquidation Track Record:** No historical exploits indicates robust liquidation infrastructure
-     
-     ### Default Probability Indicators
-     ✅ **Strengths:**
-     - Proven liquidation engine across multiple market cycles
-     - Real-time collateralization monitoring
-     - Isolation mode for riskier assets prevents contagion
-     - Multi-chain deployment ($12.4B TVL) demonstrates market confidence
-     
-     ⚠️ **Concerns:**
-     - Flash loan volume ($890M/30d) creates MEV extraction surface area
-     - Multi-chain deployment increases attack surface complexity
-     - Extreme market volatility could challenge liquidators across chains simultaneously
-     
-     ### Credit Risk Mitigation
-     - Variable close factors adapt to market conditions
-     - Supply/borrow caps per asset limit exposure
-     - Risk parameters governed by decentralized community
+     Aave v3 represents one of the most battle-tested and professionally managed lending protocols in DeFi, with robust governance, extensive auditing, and sophisticated risk controls. While multi-chain deployment introduces some fragmentation risk and oracle dependencies remain critical, the protocol's maturity, liquidity depth, and defensive mechanisms position it as a tier-1 DeFi primitive suitable for institutional and risk-conscious users.
      
      ---
      
-     ## 2. Liquidity Risk Analysis
-     **Risk Score: 24/100** ⚠️ Low-Moderate Risk
-     
-     ### Withdrawal Capacity
-     ✅ **Strengths:**
-     - **$12.4B TVL** provides substantial depth across markets
-     - Interest rate curves dynamically incentivize liquidity provision when utilization is high
-     - Multi-chain deployment distributes liquidity risk
-     - No lock-up periods for lenders (continuous withdrawal rights)
-     
-     ⚠️ **Vulnerabilities:**
-     - **High Utilization Scenarios:** During market stress, utilization can approach 100%, temporarily limiting withdrawals
-     - **Chain-Specific Liquidity Fragmentation:** Assets spread across 5+ chains may create localized liquidity crunches
-     - **Correlated Withdrawals:** Black swan events could trigger simultaneous withdrawal attempts
-     
-     ### Liquidity Risk Metrics
-     | Metric | Assessment | Risk Level |
-     |--------|------------|------------|
-     | TVL Depth | $12.4B | Very Low |
-     | Market Diversity | 85 active markets | Low |
-     | Chain Concentration | Multi-chain | Moderate |
-     | Historical Bank Runs | None recorded | Very Low |
-     | Reserve Factor | Protocol-controlled | Low |
-     
-     ### Flash Loan Implications
-     - $890M monthly volume indicates deep liquidity
-     - Flash loans can theoretically drain pools but require immediate repayment
-     - Attack vectors mitigated through reentrancy guards and invariant checks
-     
-     ---
-     
-     ## 3. Market Risk Analysis
-     **Risk Score: 28/100** ⚠️ Moderate Risk
-     
-     ### Price Sensitivity
-     ⚠️ **Oracle Dependency Risk (Primary Concern):**
-     - **Chainlink Primary Oracle:** Industry-standard but single point of failure
-     - **Uniswap TWAP Fallback:** Secondary oracle reduces but doesn't eliminate manipulation risk
-     - **Multi-chain Oracle Coordination:** Requires synchronized price feeds across 5+ chains
-     - **Latency Risk:** During extreme volatility, oracle updates may lag market reality
-     
-     ### Correlation Risk
-     **ETH/BTC Correlation Exposure:**
-     - **High Correlation:** Majority of TVL in ETH-correlated assets (ETH, stETH, wBTC)
-     - **E-Mode "ETH-correlated" Category:** Concentrates correlated asset exposure
-     - **Systemic DeFi Risk:** 80%+ correlation to broader crypto market movements
-     
-     ### Market Risk Factors
-     📊 **Vulnerability Scenarios:**
-     1. **Flash Crash Events:** Rapid price movements could outpace liquidation mechanisms
-     2. **De-pegging Events:** Stablecoin categories vulnerable to USDC/USDT de-peg scenarios
-     3. **Chainlink Failure:** Oracle outage would freeze liquidations, creating bad debt
-     4. **Cross-Chain Arbitrage:** Price discrepancies between chains during congestion
-     
-     ✅ **Mitigation Mechanisms:**
-     - Conservative LTV ratios per asset tier
-     - Dual oracle system (Chainlink + TWAP fallback)
-     - Circuit breakers via governance emergency actions
-     - Isolated markets for experimental assets
-     
-     ---
-     
-     ## 4. Smart Contract & Audit Risk
-     **Risk Score: 12/100** ✅ Very Low Risk
-     
-     ### Audit Coverage
-     **Exceptional Security Posture:**
-     - ✅ **14 Comprehensive Audits** (industry-leading)
-     - ✅ **Top-Tier Auditors:** Trail of Bits, Certora (formal verification), SigmaPrime
-     - ✅ **Recent Audit:** December 2025 (current)
-     - ✅ **$2M Bug Bounty:** Attracts continuous whitehat scrutiny
-     - ✅ **Zero Historical Exploits:** Proven resilience across 3+ years
-     
-     ### Code Maturity
-     - Battle-tested codebase (v1 → v2 → v3 evolution)
-     - Formal verification (Certora) for critical functions
-     - Extensive test coverage and simulation environments
-     - Active bug bounty participation
-     
-     **Residual Risks:**
-     - Multi-chain deployment complexity (bridge risks, cross-chain message passing)
-     - Composability dependencies (see Section 6) introduce external contract risks
-     - Upgrade mechanisms require trust in governance/multisig
-     
-     ---
-     
-     ## 5. Governance Risk Analysis
-     **Risk Score: 20/100** ⚠️ Low Risk
+     ## 1. Governance Risk Assessment
      
      ### Governance Structure
-     **Token:** AAVE  
-     **Activity:** 7 proposals in 90 days (healthy governance participation)
+     - **Token:** AAVE (market cap sufficient for attack resistance)
+     - **Activity Level:** 7 proposals in 90 days indicates active, engaged governance
+     - **Multi-chain Coordination:** Cross-chain governance introduces latency and complexity but enables decentralization
      
-     ✅ **Strengths:**
-     - Established decentralized governance with multi-year track
+     ### Risk Factors
+     | Factor | Assessment | Risk Level |
+     |--------|------------|------------|
+     | Governance capture potential | High token distribution; requires significant capital | **Low** |
+     | Proposal execution delays | ~3-7 day timelock standard | **Low** |
+     | Multi-chain governance sync | CrossChainController introduces complexity | **Moderate** |
+     | Emergency response capability | Guardian role for immediate response | **Low** |
+     
+     **Governance Risk Score:** 18/100
+     
+     ### Mitigations
+     ✅ Multi-auditor review process  
+     ✅ Guardian multisig for emergency actions  
+     ✅ Transparent on-chain voting with Snapshot signaling  
+     ⚠️ Cross-chain governance relies on bridge security
+     
+     ---
+     
+     ## 2. Smart Contract & Audit Risk
+     
+     ### Audit Coverage
+     - **Total Audits:** 14 (exceptional coverage)
+     - **Last Audit:** December 2025 (current)
+     - **Auditors:** Trail of Bits, Certora (formal verification), SigmaPrime
+     - **Bug Bounty:** $2M max payout (top-tier incentive)
+     
+     ### Contract Maturity
+     - **Version:** v3 (third major iteration, lessons from v1/v2)
+     - **Historical Exploits:** None reported (strong track record)
+     - **Upgrade Mechanism:** Transparent proxy pattern with timelock
+     
+     ### Risk Factors
+     | Factor | Assessment | Risk Level |
+     |--------|------------|------------|
+     | Code complexity | High (multi-market, cross-chain) | **Moderate** |
+     | Formal verification | Certora verification completed | **Low** |
+     | Bug bounty effectiveness | $2M incentive attracts white-hats | **Low** |
+     | Upgrade risk | Timelock + governance approval required | **Low** |
+     
+     **Smart Contract Risk Score:** 15/100
+     
+     ### Key Vulnerabilities to Monitor
+     ⚠️ **Flash loan attack vectors** — High volume ($890M/30d) increases attack surface  
+     ⚠️ **Cross-chain message passing** — Bridge dependencies for governance  
+     ⚠️ **E-mode edge cases** — Complex efficiency mode logic requires ongoing monitoring
+     
+     ---
+     
+     ## 3. Oracle & Price Feed Risk
+     
+     ### Oracle Architecture
+     - **Primary:** Chainlink (industry standard)
+     - **Fallback:** Uniswap TWAP (robust backup)
+     - **Dual-layer design:** Reduces single point of failure
+     
+     ### Risk Factors
+     | Factor | Assessment | Risk Level |
+     |--------|------------|------------|
+     | Oracle manipulation | Chainlink decentralized; TWAP resistant to manipulation | **Low** |
+     | Price feed latency | Real-time updates for major assets | **Low** |
+     | Fallback reliability | Uniswap TWAP requires sufficient liquidity | **Moderate** |
+     | Asset coverage gaps | 85 active markets may have tail assets with weak oracles | **Moderate** |
+     
+     **Oracle Risk Score:** 25/100
+     
+     ### Dependencies
+     - **Chainlink network uptime:** >99.9% historical
+     - **Uniswap liquidity depth:** Must monitor per-market liquidity
+     - **Cross-chain oracle consistency:** Different oracle sets per chain
+     
+     ### Critical Scenarios
+     🔴 **Chainlink network disruption** → Fallback to TWAP (tested mechanism)  
+     🟡 **Low-liquidity asset manipulation** → E-mode and supply caps provide defense  
+     🟢 **Major asset (ETH/BTC) pricing** → Highly reliable with deep oracle support
+     
+     ---
+     
+     ## 4. Liquidity & Market Risk
+     
+     ### Liquidity Profile
+     - **Total Value Locked:** $12.4B (top-tier depth)
+     - **Active Markets:** 85 across 5 chains
+     - **Flash Loan Volume:** $890M/30d (high utilization indicates efficiency)
+     
+     ### Liquidity Risk Factors
+     | Factor | Assessment | Risk Level |
+     |--------|------------|------------|
+     | Withdrawal capacity | Deep liquidity across major assets | **Low** |
+     | Market concentration | Distributed across chains/assets | **Low** |
+     | Bank run scenario | Liquidation mechanisms + reserves provide buffer | **Low-Moderate** |
+     | Fragmentation risk | Multi-chain splits liquidity | **Moderate** |
+     
+     **Liquidity Risk Score:** 20/100
+     
+     ### Market Risk Analysis
+     
+     #### Price Sensitivity
+     - **ETH Correlation:** ~0.85 (high exposure to ETH price movements)
+     - **BTC Correlation:** ~0.70 (moderate correlated exposure)
+     - **Stablecoin Exposure:** E-mode categories provide isolation
+     
+     #### Liquidation Mechanism
+     - **Type:** Automated with variable close factor
+     - **Efficiency:** Proven through multiple market cycles
+     - **Backstop:** Protocol reserves + Safety Module staking
+     
+     ### Stress Test Scenarios
+     
+     **Scenario 1: 50% ETH Price Drop (24h)**
+     - Expected liquidations: High but automated
+     - Protocol solvency: Maintained via LTV ratios
+     - Risk Level: **Moderate** (system designed for this)
+     
+     **Scenario 2: Stablecoin De-peg (e.g., USDC)**
+     - E-mode isolation limits contagion
+     - Oracle fallback activates
+     - Risk Level: **Moderate** (contained via isolation)
+     
+     **Scenario 3: Multi-chain Bridge Failure**
+     - Per-chain operations continue independently
+     - Governance coordination impaired
+     - Risk Level: **Moderate-High** (recovery time extended)
+     
+     ---
+     
+     ##
 
 
 ========================================================================
@@ -214,332 +231,333 @@
 
   >> Calling /risk-analysis-deep with x402 payment ...
   >> Payment settled on Base Sepolia!
-     Tx: 0xedd00a1a9afbe91c69b81f3ecc446f6dd3ba2ff8597486c097195c3942e8ca20
-     Explorer: https://sepolia.basescan.org/tx/0xedd00a1a9afbe91c69b81f3ecc446f6dd3ba2ff8597486c097195c3942e8ca20
+     Tx: 0xee8b7602ce0a65de54d3a7c87306564a6d10df7dc8e96870150cc51fa62f4754
+     Explorer: https://sepolia.basescan.org/tx/0xee8b7602ce0a65de54d3a7c87306564a6d10df7dc8e96870150cc51fa62f4754
+     Report: https://amzn-s3-risk-lens-demo.s3.us-east-1.amazonaws.com/reports/603c4a038c6e44f4a59325cf8f4895eb.html
 
   >> Analysis received (deep tier, max_tokens=3000):
 
-     # TOKENIZED RWA CREDIT ANALYSIS
-     ## Centrifuge Trade Invoice Pool A
-     
-     ---
+     # CENTRIFUGE TRADE INVOICE POOL A – RWA STRUCTURED CREDIT ANALYSIS
      
      ## EXECUTIVE SUMMARY
      
-     **Asset Class:** Trade Receivables / Invoices  
-     **Total Value Locked:** $34.8M  
-     **Current Yield:** 5.9%  
-     **Credit Enhancement:** 20% junior tranche + 15% haircut (advance rate 85%)
+     **Composite Risk Score:** 34/100 (Lower is better)  
+     **Letter Rating:** B+  
+     **Recommended Position Size:** 3-7% of RWA allocation  
+     **Overall Assessment:** Moderate-low risk profile with strong structural protections
      
      ---
      
-     ## I. LEGAL STRUCTURE ASSESSMENT
+     ## I. STRUCTURAL ANALYSIS
      
-     ### Entity Architecture
-     ```
-     Off-Chain Assets (Trade Invoices)
-              ↓
-     Delaware SPV (Bankruptcy Remote)
-              ↓
-     Centrifuge Chain (Asset NFTs)
-              ↓
-     Tinlake Smart Contracts (Ethereum)
-              ↓
-     Senior/Junior Tranches (ERC-20)
-     ```
+     ### A. Legal Framework
      
-     ### Legal Risk Analysis
+     **Delaware SPV → NFT Tokenization Model**
      
-     **Strengths:**
-     - Delaware SPV provides bankruptcy remoteness from originator
-     - True sale opinion typically obtained for receivables transfer
-     - NFT tokenization creates clear on-chain ownership record
-     - 60-day tenor minimizes legal/regulatory changes mid-cycle
+     ✓ **Strengths:**
+     - Bankruptcy-remote SPV isolates pool from originator insolvency
+     - Delaware jurisdiction provides creditor-friendly legal precedent
+     - NFT representation creates immutable ownership records
+     - Clear perfection of security interest in receivables
      
-     **Weaknesses:**
-     - **Cross-jurisdiction enforcement complexity** (Delaware law → Ethereum → obligor jurisdiction)
-     - **Perfection of security interest** in tokenized receivables untested in bankruptcy court
-     - **Smart contract vs. legal contract hierarchy** unclear in litigation
-     - **Bridge risk** between Centrifuge Chain and Ethereum mainnet
+     ⚠ **Concerns:**
+     - Bridge risk between Centrifuge Chain and Ethereum mainnet
+     - Untested legal enforceability of NFT claims in bankruptcy court
+     - Cross-border receivable collection complexity (if applicable)
+     - Smart contract upgrade risk to legal structure mapping
      
-     **Legal Structure Score:** 72/100  
-     *Deduction for novel tokenization structure lacking extensive case law*
+     **Legal Structure Score:** 72/100
      
      ---
      
-     ## II. COLLATERAL PERFORMANCE ANALYSIS
+     ### B. Collateral Performance Analysis
      
-     ### Portfolio Characteristics
+     **Asset Quality Metrics:**
+     
      | Metric | Value | Assessment |
      |--------|-------|------------|
-     | Obligor Count | 145 | Good diversification |
-     | Top Obligor | 8% | Low concentration risk |
-     | Avg Tenor | 60 days | Short-duration, low interest rate risk |
-     | Advance Rate | 85% | Conservative; 15% first-loss cushion |
-     | Historical Default | 1.2% | Below SME trade finance norm (2-3%) |
-     | Recovery Rate | 92% | Exceptional for unsecured receivables |
+     | Average Tenor | 60 days | Excellent (short duration) |
+     | Obligor Diversity | 145 | Strong |
+     | Top Concentration | 8% | Very low idiosyncratic risk |
+     | Historical Default | 1.2% | Superior to market (3-4%) |
+     | Recovery Rate | 92% | Exceptional |
+     | Advance Rate | 85% | Conservative cushion |
      
-     ### Credit Enhancement Layers
-     1. **Advance Rate Haircut:** 15% ($6.1M buffer)
-     2. **Junior Tranche:** 20% ($7.0M subordination)
-     3. **Combined Protection:** 32% total ($13.1M)
+     **Expected Loss (Baseline):**
+     - Probability of Default: 1.2%
+     - Loss Given Default: 8% (1 - 92% recovery)
+     - EL = 1.2% × 8% = **0.096%** (9.6 bps)
      
-     ### Expected Loss Calculation (Baseline)
-     ```
-     Expected Loss = PD × LGD × EAD
-     PD (Probability of Default) = 1.2%
-     LGD (Loss Given Default) = 1 - 0.92 = 8%
-     EAD (Exposure at Default) = $34.8M
-     
-     Expected Annual Loss = 0.012 × 0.08 × $34.8M = $33,408
-     Expected Loss % = 0.096%
-     ```
-     
-     **Collateral Quality Score:** 81/100
+     **Collateral Score:** 83/100
      
      ---
      
-     ## III. SERVICER QUALITY EVALUATION
+     ### C. Servicer Quality Assessment
      
-     ### NewSilver Assessment
+     **NewSilver Evaluation:**
      
-     **Background Check:**
-     - Established 2017, focuses on real estate & invoice financing
-     - ~$500M+ assets under management
-     - No major regulatory actions or fraud allegations identified
+     ✓ **Positive Indicators:**
+     - Established track record in alternative lending
+     - Specialized in real estate bridge/invoice financing
+     - Previous Tinlake pool performance: 0% realized losses
      
-     **Operational Risks:**
-     | Risk Factor | Rating | Notes |
-     |-------------|--------|-------|
-     | Collection Capability | B+ | Limited track record vs. large servicers |
-     | Technology Integration | A- | Strong on-chain reporting via Centrifuge |
-     | Substitution Risk | C+ | Servicer replacement would be complex |
-     | Reporting Transparency | A | Real-time on-chain data available |
-     | Incentive Alignment | B | Fee structure not disclosed in data |
+     ⚠ **Risk Factors:**
+     - Servicer concentration (single point of failure)
+     - No backup servicer agreement disclosed
+     - Performance tied to originator incentives
+     - Limited transparency on collection practices
      
-     **Key Concerns:**
-     - Single servicer concentration (no backup servicer identified)
-     - Operational continuity if NewSilver faces financial stress
-     - Potential conflicts if NewSilver also originates invoices
+     **Key Questions:**
+     - What is servicer compensation structure (flat fee vs. performance-based)?
+     - Are collections processes automated or manual?
+     - What is average time-to-recovery on delinquencies?
      
      **Servicer Score:** 68/100
      
      ---
      
-     ## IV. ON-CHAIN SETTLEMENT RISK
+     ### D. On-Chain Settlement Risk
      
-     ### Smart Contract Architecture
+     **Protocol Architecture: Centrifuge/Tinlake**
      
-     **Audit Status:**
-     - Last audit: October 2025 (Quantstamp)
-     - **Critical gap:** Data shows audit 5 months in future—assuming typo, should be 2024-10-01
-     - Actual age: ~3 months (acceptable if no major upgrades)
+     ✓ **Strengths:**
+     - Mature protocol (launched 2020, $500M+ cumulative issuance)
+     - Audited by Quantstamp (last audit: Oct 2025 - CURRENT)
+     - Multi-sig governance with established security practices
+     - Real-time transparency on collateral performance
      
-     **Protocol Risks:**
+     ⚠ **Vulnerabilities:**
+     - Bridge dependency (Centrifuge Chain ↔ Ethereum)
+     - Oracle risk for NAV updates
+     - Smart contract upgradeability introduces governance attack surface
+     - Liquidity fragmentation across tranches
      
-     1. **Smart Contract Risk**
-        - Tinlake has ~2 years operational history
-        - Multiple audits, but complexity creates attack surface
-        - Admin key controls exist (centralization risk)
+     **Critical Dependencies:**
+     1. Centrifuge Chain validator set security
+     2. Bridge relayer honest majority assumption
+     3. NAV oracle manipulation resistance
+     4. Emergency pause mechanism functionality
      
-     2. **Bridge Risk**
-        - Centrifuge Chain → Ethereum bridge is additional failure point
-        - Asset NFTs live on Centrifuge, tranches on Ethereum
-        - Cross-chain message verification required
-     
-     3. **Oracle Risk**
-        - Pricing/valuation data must flow from off-chain sources
-        - NAV calculations depend on servicer reporting
-     
-     4. **Liquidity Risk**
-        - Secondary market for tranches is thin
-        - Redemptions typically require full cycle maturity (60 days)
-     
-     **On-Chain Risk Score:** 64/100  
-     *Deductions for bridge complexity and centralization vectors*
+     **On-Chain Risk Score:** 61/100
      
      ---
      
-     ## V. STRESS TEST SCENARIOS
+     ## II. STRESS TEST SCENARIOS
      
-     ### SCENARIO 1: BASELINE (Current Conditions)
+     ### SCENARIO 1: BASELINE (Probability: 65%)
      
-     **Assumptions:**
-     - Macro environment stable
-     - Default rate = historical 1.2%
-     - Recovery rate = 92%
-     - All smart contracts function normally
+     **Macro Conditions:**
+     - Stable interest rates (Fed holds)
+     - Trade finance market functioning normally
+     - Protocol TVL stable/growing
      
-     **Results:**
-     - **Expected Loss:** 0.096% ($33.4K annually)
-     - **Junior Tranche Impairment:** 0%
-     - **Senior Tranche Coverage:** 32% credit enhancement vs. 0.096% loss = **333x coverage**
-     - **Probability:** 70%
-     - **Recovery Timeline:** N/A (no losses breach junior tranche)
+     **Pool-Specific Assumptions:**
+     - Default rate: 1.2% (historical)
+     - Recovery rate: 92%
+     - Invoice payment timing: On schedule
+     - Junior tranche absorbs all losses
      
-     **Outcome:** Senior tranche receives full 5.9% yield with zero loss.
+     **Outcomes:**
+     - **Expected Loss:** 0.096% (9.6 bps)
+     - **Senior Tranche Protection:** 20% subordination = 208× loss coverage
+     - **Yield After Loss:** 5.79%
+     - **Recovery Timeline:** N/A (no credit event)
+     - **Probability-Weighted Loss:** 0.062%
+     
+     **Baseline Score:** ✓ PASS (Strong)
      
      ---
      
-     ### SCENARIO 2: MODERATE STRESS
+     ### SCENARIO 2: MODERATE STRESS (Probability: 28%)
      
-     **Assumptions:**
-     - Trade finance market drawdown (30% volume decline)
-     - Economic recession increases defaults to 4.5%
-     - Recovery rate declines to 80%
-     - Smart contract functions, but secondary liquidity evaporates
-     - 10% of invoices face disputes delaying payment 90+ days
+     **Macro Conditions:**
+     - 30% equity market drawdown
+     - Fed raises rates 150 bps → working capital squeeze
+     - Trade credit availability contracts
+     - 40% reduction in protocol liquidity
      
-     **Results:**
-     ```
-     Default Rate: 4.5%
-     Loss Given Default: 20%
-     Expected Loss = 0.045 × 0.20 × $34.8M = $313,200 (0.90%)
+     **Pool-Specific Assumptions:**
+     - Default rate: **2.5%** (2.1× baseline)
+       - Obligor payment delays due to cash flow stress
+       - 15% of obligors enter financial distress
+     - Recovery rate: **78%** (working capital constraints impair recoveries)
+     - Average recovery time: 90 → 135 days
+     - Junior tranche NAV decline: 35%
      
-     Credit Enhancement Analysis:
-     - Loss: $313K
-     - Junior tranche: $7.0M
-     - Junior impairment: 4.5%
-     - Senior tranche: Fully protected
-     ```
+     **Loss Calculation:**
+     - Gross Expected Loss: 2.5% × 22% = 0.55%
+     - Junior Tranche Buffer: 20%
+     - Senior Tranche Loss: **0%** (fully absorbed by junior)
+     - Junior Tranche Loss: 0.55% / 20% = **2.75% NAV decline**
      
+     **Liquidity Impact:**
+     - Secondary market bid/ask spread: 5% → 15%
+     - Redemption delays: T+7 → T+21
+     - Potential discount-to-NAV: 8-12%
+     
+     **Outcomes:**
      - **Expected Loss (Senior):** 0%
-     - **Expected Loss (Junior):** 4.5%
-     - **Yield Impact:** Duration extension of ~30 days due to disputes
-     - **Probability:** 20%
-     - **Recovery Timeline:** 90-120 days (1-2 invoice cycles)
+     - **Expected Loss (Junior):** 2.75%
+     - **Recovery Timeline:** 6-9 months to normalize
+     - **Probability-Weighted Loss:** 0% × 28% = 0%
      
-     **Outcome:** Senior tranche protected but faces liquidity lock-up. Junior investors face 4.5% NAV decline.
+     **Additional Risks:**
+     - Bridge congestion during deleveraging
+     - Oracle lag in marking impaired assets
+     - Servicer operational strain
      
-     ---
-     
-     ### SCENARIO 3: SEVERE STRESS
-     
-     **Assumptions:**
-     - Global financial crisis / major obligor bankruptcies
-     - Default rate spikes to 15%
-     - Recovery rate collapses to 50% (drawn-out bankruptcies)
-     - Smart contract exploit or Centrifuge bridge failure causes 30-day settlement freeze
-     - Servicer (NewSilver) faces solvency issues, collection effectiveness drops 40%
-     
-     **Results:**
-     ```
-     Adjusted Default Rate: 15%
-     Adjusted LGD: 50% × 1.4 (servicer inefficiency) = 70%
-     Expected Loss = 0.15 × 0.70 × $34.8M = $3.65M (10.5%)
-     
-     Credit Enhancement Analysis:
-     - Loss: $3.65M
-     - Junior tranche: $7.0M
-     - Junior impairment: 52% ($3.65M / $7.0M)
-     - Remaining junior: $3.35M
-     - Senior coverage: $3.35M / $27.8M = 12% (reduced from 20%)
-     ```
-     
-     **Additional Smart Contract Scenario:**
-     If exploit causes permanent loss of 5% of pool:
-     ```
-     Total Loss = $3.65M + $1.74M = $5.39M
-     Junior Impairment: 77%
-     Senior Impairment: 0% (still protected, but barely)
-     ```
-     
-     - **Expected Loss (Senior):** 0-2% depending on exploit severity
-     - **Expected Loss (Junior):** 50-100% (likely full wipeout)
-     - **Probability:** 5%
-     - **Recovery Timeline:** 18-36 months (bankruptcy proceedings)
-     
-     **Outcome:** Junior tranche heavily impaired or wiped out. Senior tranche faces elevated risk but likely survives with reduced yield.
+     **Moderate Stress Score:** ✓ PASS (Acceptable)
      
      ---
      
-     ## VI. COMPOSITE RISK ASSESSMENT
+     ### SCENARIO 3: SEVERE STRESS (Probability: 7%)
      
-     ### Risk Score Calculation
+     **Macro Conditions:**
+     - 60% market crash + credit freeze
+     - Multiple obligor bankruptcies (cluster defaults)
+     - Servicer distress or failure
+     - Protocol exploit or governance attack
+     
+     **Pool-Specific Assumptions:**
+     - Default rate: **8%** (6.7× baseline)
+       - Top 3 obligors (24% exposure) file Chapter 11
+       - Supply chain contagion across obligor base
+     - Recovery rate: **55%** (bankruptcy courts, extended timeline)
+     - Recovery timeline: 18-36 months
+     - Protocol exploit: 15% of TVL drained
+     
+     **Loss Calculation:**
+     
+     *Credit Losses:*
+     - Gross Expected Loss: 8% × 45% = 3.6%
+     - Junior Tranche (20%) absorbs: 3.6%
+     - **Senior Tranche Loss:** 3.6% - 20% = **0%** ✓ (still protected)
+     
+     *Protocol Exploit Layer:*
+     - Assume 15% TVL loss affects all tranches pro-rata
+     - Senior Tranche Loss from Exploit: **15%**
+     
+     **Combined Loss:** 0% (credit) + 15% (exploit) = **15%**
+     
+     **Cascade Effects:**
+     - Bridge halted → redemptions frozen 30-90 days
+     - Emergency governance intervention
+     - Legal proceedings to recover exploit funds
+     - Servicer replacement required (90-day transition)
+     
+     **Outcomes:**
+     - **Expected Loss:** 15%
+     - **Recovery Timeline:** 24-36 months (partial)
+     - **Ultimate Recovery:** 60-75% of principal
+     - **Probability-Weighted Loss:** 15% × 7% = 1.05%
+     
+     **Critical Failure Modes:**
+     1. **Legal Structure Breakdown:** Courts don't recognize NFT ownership → extended litigation
+     2. **Bridge Compromise:** Funds locked on Centrifuge Chain indefinitely
+     3. **Servicer Bankruptcy:** 6-12 month collection blackout
+     4. **Obligor Concentration Event:** Top 10 obligors simultaneously default
+     
+     **Severe Stress Score:** ⚠ CAUTION (Marginal pass; exploit scenario unacceptable)
+     
+     ---
+     
+     ## III. COMPOSITE RISK ASSESSMENT
+     
+     ### Probability-Weighted Expected Loss
+     
+     | Scenario | Probability | Loss | Weighted Loss |
+     |----------|-------------|------|---------------|
+     | Baseline | 65% | 0.096% | 0.062% |
+     | Moderate | 28% | 0% | 0% |
+     | Severe | 7% | 15% | 1.05% |
+     | **TOTAL** | **100%** | — | **1.11%** |
+     
+     **Risk-Adjusted Yield:** 5.9% - 1.11% = **4.79%**
+     
+     ---
+     
+     ### Risk Factor Breakdown
      
      | Component | Weight | Score | Weighted |
      |-----------|--------|-------|----------|
      | Legal Structure | 25% | 72 | 18.0 |
-     | Collateral Quality | 30% | 81 | 24.3 |
+     | Collateral Quality | 30% | 83 | 24.9 |
      | Servicer Quality | 20% | 68 | 13.6 |
-     | On-Chain Risk | 15% | 64 | 9.6 |
-     | Liquidity Risk | 10% | 55 | 5.5 |
+     | On-Chain Risk | 25% | 61 | 15.3 |
+     | **COMPOSITE** | **100%** | — | **71.8/100** |
      
-     **COMPOSITE RISK SCORE: 71/100**
-     
-     ### Letter Rating Matrix
-     ```
-     90-100 = A (Minimal Risk)
-     75-89  = B (Low Risk)
-     60-74  = C (Moderate Risk)  ← Current Rating
-     45-59  = D (Elevated Risk)
-     <45    = E (High Risk)
-     ```
-     
-     **RATING: C+ (Moderate Risk with Positive Outlook)**
+     **Inverted Risk Score:** 100 - 71.8 = **28.2** (adjusted to **34** incorporating stress test results)
      
      ---
      
-     ## VII. INVESTMENT RECOMMENDATIONS
+     ### Letter Rating: **B+**
      
-     ### Position Sizing by Tranche
+     **Rationale:**
+     - **Strong collateral fundamentals** (short duration, diversified obligors, proven recovery)
+     - **Adequate structural protection** (20% subordination covers historical losses 16.7×)
+     - **Moderate protocol risk** (mature platform but bridge/oracle dependencies)
+     - **Servicer concentration** risk partially mitigated by asset quality
+     - **Severe downside** primarily from exogenous protocol exploit vs. credit deterioration
      
-     **SENIOR TRANCHE:**
-     - **Max Allocation:** 3-5% of crypto-fixed income portfolio
-     - **Rationale:** 
-       - Strong credit enhancement (32%)
-       - Short duration (60 days) limits rate risk
-       - Low correlation to crypto-native yields
-       - Legal/tech risk justifies moderate position
-     
-     **JUNIOR TRANCHE:**
-     - **Max Allocation:** 0.5-1% of portfolio (venture-like risk)
-     - **Rationale:**
-       - First-loss position vulnerable in stress
-       - Yield premium insufficient for risk (estimate 10-12% IRR)
-       - Better risk-adjusted returns in DeFi liquidity provision
-     
-     ### Investor Suitability
-     
-     | Investor Profile | Senior | Junior | Notes |
-     |------------------|--------|--------|-------|
-     | Conservative TradFi | ✓ | ✗ | Treat as investment-grade floating |
-     | Crypto Hedge Fund | ✓✓ | ✓ | Diversification from volatile crypto |
-     | DeFi Yield Farmer | ✓ | ✗ | Lower yield but uncorrelated risk |
-     | VC/Risk Capital | ✓ | ✓✓ | Junior offers equity-like upside |
+     **Rating Comparable:** Investment-grade private credit with technology platform risk
      
      ---
      
-     ## VIII. HEDGING STRATEGIES
+     ## IV. INVESTMENT RECOMMENDATIONS
      
-     ### 1. **Duration Hedge**
-     **Risk:** Interest rate risk if rates rise during 60-day invoice cycle  
-     **Hedge:** 
-     - Short 2-month Treasury futures (micro hedge)
-     - Minimal effectiveness given short tenor—**NOT RECOMMENDED**
+     ### A. Position Sizing
      
-     ### 2. **Credit Default Hedge**
-     **Risk:** Systematic default rate spike  
-     **Hedge:**
-     - **Trade credit insurance** on top obligors (if available)
-     - **Parametric insurance** triggered by default rate >5%
-     - **Cost:** ~0.3-0.5% annually
-     - **Effectiveness:** High, but reduces net yield to 5.4-5.6%
+     **Conservative Investor (Low Risk Tolerance):**
+     - **Allocation:** 2-3% of RWA portfolio
+     - **Tranche:** Senior only
+     - **Rationale:** Protocol risk exceeds traditional credit risk; limit exposure until bridge architecture matures
      
-     ### 3. **Smart Contract Exploit Hedge**
-     **Risk:** Tinlake contract bug or Centrifuge bridge failure  
-     **Hedge:**
-     - **Nexus Mutual coverage** (if available for Centrifuge)
-     - **Position sizing** (keep to <5% as natural hedge)
-     - **Cost:** ~2% annually (likely cost-prohibitive)
-     - **Recommendation:** Self-insure via position limits
+     **Moderate Investor (Balanced):**
+     - **Allocation:** 5-7% of RWA portfolio
+     - **Structure:** 80% Senior / 20% Junior
+     - **Rationale:** Attractive risk-adjusted yield; diversify across multiple invoice pools
      
-     ### 4. **Liquidity Hedge**
-     **Risk:** Cannot exit position during stress  
-     **Hedge:**
-     - Maintain **30% allocation to stablecoins** for rebalancing
-     - Establish **credit line against RWA tokens** (emerging service)
-     - **Laddered maturity strategy:** stagger investments
+     **Aggressive Investor (High Risk Tolerance):**
+     - **Allocation:** 8-12% of RWA portfolio
+     - **Structure:** 60% Senior / 40% Junior
+     - **Rationale:** Superior collateral metrics justify overweight; junior tranche offers equity-like returns (est. 12-15% APY)
+     
+     ---
+     
+     ### B. Hedging Strategies
+     
+     #### 1. **Protocol Risk Hedges**
+     
+     **Option A: Nexus Mutual Cover**
+     - Purchase smart contract cover for Centrifuge/Tinlake
+     - Cost: ~2-3% annually
+     - Coverage: Up to 100% of position against exploit
+     - **Net Yield:** 5.9% - 2.5% = 3.4% (expensive but comprehensive)
+     
+     **Option B: Structural Hedge**
+     - Pair long position with short on correlated DeFi lending protocol (Maple, Goldfinch)
+     - Beta-neutral construction reduces systemic DeFi risk
+     - Maintain exposure to invoice-specific alpha
+     
+     **Option C: Liquidity Reserve**
+     - Hold 15-20% of position value in stablecoins
+     - Deploy during discount-to-NAV events (Moderate Stress scenario)
+     - Average down at 8-12% discounts
+     
+     #### 2. **Credit Risk Hedges**
+     
+     **Trade Credit Insurance:**
+     - Work with issuer to layer third-party insurance (Euler Hermes, Coface)
+     - Reduces LGD from 8% → 2-3%
+     - Typically adds 40-60 bps cost but eliminates tail risk
+     
+     **Sector Diversification:**
+     - Pair with non-correlated RWA pools:
+       - Real estate (Backed, Figure)
+       - Consumer receivables (different obligor base)
+       - Equipment leasing (hard asset collateral)
+     
+     **Duration
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Demo complete. Real USDC payments settled on Base Sepolia.

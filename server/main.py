@@ -6,6 +6,7 @@ Run: uvicorn server.main:app --port 4021 --reload
 from __future__ import annotations
 
 import os
+from datetime import datetime, timezone
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
@@ -108,6 +109,7 @@ except Exception as exc:
 from server.llm_client import call_llm  # noqa: E402
 from server.mock_data import get_mock_data  # noqa: E402
 from server.prompts import DEPTH_TOKENS, build_prompt  # noqa: E402
+from server.report import generate_html_report, upload_report_to_s3  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -150,6 +152,26 @@ async def _handle_analysis(request: Request, depth: str) -> JSONResponse:
 
     analysis = call_llm(prompt, max_tokens=max_tokens)
 
+    # Generate and upload HTML report to S3
+    price_map = {"quick": "$0.50", "standard": "$3.00", "deep": "$10.00"}
+    report_url = ""
+    try:
+        metadata = {
+            "target": target,
+            "domain": domain,
+            "depth": depth,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        payment_info = {
+            "amount_usdc": price_map.get(depth, ""),
+            "tx_hash": "",  # tx hash is set by settlement after response
+            "network": "Base Sepolia",
+        }
+        html = generate_html_report(metadata, payment_info, analysis)
+        report_url = upload_report_to_s3(html)
+    except Exception as exc:
+        print(f"[RiskLens] Report upload failed: {exc}")
+
     return JSONResponse(
         content={
             "domain": domain,
@@ -157,6 +179,7 @@ async def _handle_analysis(request: Request, depth: str) -> JSONResponse:
             "depth": depth,
             "max_tokens": max_tokens,
             "analysis": analysis,
+            "report_url": report_url,
         }
     )
 

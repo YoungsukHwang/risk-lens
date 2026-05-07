@@ -172,6 +172,10 @@ def evaluate(
             except Exception:
                 print(f"     Payment-Response: {payment_response[:80]}...")
 
+        report_url = data.get("report_url", "")
+        if report_url:
+            print(f"     Report: {report_url}")
+
         print(f"\n  >> Analysis received ({data.get('depth', '?')} tier, "
               f"max_tokens={data.get('max_tokens', '?')}):\n")
         for line in analysis.split("\n"):

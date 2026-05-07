@@ -4,3 +4,4 @@ x402[fastapi,httpx,evm]>=2.6
 anthropic>=0.40
 python-dotenv>=1.0
 requests>=2.31
+boto3>=1.34
