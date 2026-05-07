@@ -6,17 +6,23 @@ by the x402 SDK: on 402 response, the client signs an EIP-3009 USDC transfer
 authorization, attaches it as a payment header, and retries — the server's
 facilitator verifies and settles on-chain.
 
+After each successful call, the client generates an HTML report with the
+settlement tx hash and uploads it to S3 (public URL).
+
 Run:  python -m client.demo_client
 Requires:
   - RiskLens server running on localhost:4021
   - CLIENT_PRIVATE_KEY in .env (Base Sepolia wallet with USDC + ETH for gas)
+  - AWS credentials configured (for S3 report upload)
 """
 
 from __future__ import annotations
 
+import base64
 import json
 import os
 import traceback
+from datetime import datetime, timezone
 
 import requests
 from dotenv import load_dotenv
@@ -25,6 +31,8 @@ from eth_account import Account
 from x402 import x402ClientSync
 from x402.mechanisms.evm.exact.client import ExactEvmScheme
 from x402.http.clients.requests import wrapRequestsWithPayment
+
+from server.report import generate_html_report, upload_report_to_s3
 
 load_dotenv()
 
@@ -57,6 +65,8 @@ TIERS = {
     "standard": {"endpoint": "/risk-analysis-standard", "cost_usd": 3.00},
     "deep":     {"endpoint": "/risk-analysis-deep",     "cost_usd": 10.00},
 }
+
+PRICE_LABELS = {"quick": "$0.50", "standard": "$3.00", "deep": "$10.00"}
 
 
 # ── Stakes-based router ──────────────────────────────────────────────────
@@ -96,6 +106,43 @@ def stakes_based_router(capital_usd: float) -> dict:
         }
 
 
+def _extract_tx_hash(resp: requests.Response) -> str:
+    """Extract settlement tx hash from x402 response headers."""
+    payment_response = (
+        resp.headers.get("payment-response")
+        or resp.headers.get("x-payment-response")
+    )
+    if not payment_response:
+        return ""
+    try:
+        pr_data = json.loads(base64.b64decode(payment_response))
+        return pr_data.get("transaction", pr_data.get("txHash", ""))
+    except Exception:
+        return ""
+
+
+def _upload_report(data: dict, tx_hash: str) -> str:
+    """Generate HTML report with tx hash and upload to S3. Returns URL or empty."""
+    try:
+        depth = data.get("depth", "")
+        metadata = {
+            "target": data.get("target", ""),
+            "domain": data.get("domain", ""),
+            "depth": depth,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        payment_info = {
+            "amount_usdc": PRICE_LABELS.get(depth, ""),
+            "tx_hash": tx_hash,
+            "network": "Base Sepolia",
+        }
+        html = generate_html_report(metadata, payment_info, data.get("analysis", ""))
+        return upload_report_to_s3(html)
+    except Exception as exc:
+        print(f"     [warn] Report upload failed: {exc}")
+        return ""
+
+
 # ── Evaluate a single scenario ───────────────────────────────────────────
 def evaluate(
     scenario_name: str,
@@ -103,7 +150,7 @@ def evaluate(
     domain: str,
     target: str,
 ) -> None:
-    """Run one end-to-end scenario: route → decide → pay → analyze → print."""
+    """Run one end-to-end scenario: route → decide → pay → analyze → report → print."""
 
     sep = "=" * 72
     print(f"\n{sep}")
@@ -140,7 +187,6 @@ def evaluate(
         )
 
         if resp.status_code == 402:
-            # Payment was attempted but failed (insufficient funds, sig error, etc.)
             print("  >> 402 Payment Required — payment was rejected")
             print(f"     Response headers: {dict(resp.headers)}")
             print(f"     Body: {resp.text[:500]}")
@@ -156,23 +202,15 @@ def evaluate(
         # ── Success! Payment settled, analysis received ──
         data = resp.json()
         analysis = data.get("analysis", "")
-
-        # Check for settlement proof in response headers
-        payment_response = resp.headers.get("payment-response") or resp.headers.get("x-payment-response")
+        tx_hash = _extract_tx_hash(resp)
 
         print(f"  >> Payment settled on Base Sepolia!")
-        if payment_response:
-            import base64
-            try:
-                pr_data = json.loads(base64.b64decode(payment_response))
-                tx_hash = pr_data.get("transaction", pr_data.get("txHash", ""))
-                if tx_hash:
-                    print(f"     Tx: {tx_hash}")
-                    print(f"     Explorer: https://sepolia.basescan.org/tx/{tx_hash}")
-            except Exception:
-                print(f"     Payment-Response: {payment_response[:80]}...")
+        if tx_hash:
+            print(f"     Tx: {tx_hash}")
+            print(f"     Explorer: https://sepolia.basescan.org/tx/{tx_hash}")
 
-        report_url = data.get("report_url", "")
+        # Upload HTML report to S3 (client-side, with tx hash)
+        report_url = _upload_report(data, tx_hash)
         if report_url:
             print(f"     Report: {report_url}")
 
