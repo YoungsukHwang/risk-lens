@@ -1,23 +1,55 @@
-"""RiskLens demo client — stakes-based routing for AI agent risk analysis.
+"""RiskLens demo client — stakes-based routing with REAL x402 payment on Base Sepolia.
 
 Demonstrates how an AI agent decides whether (and at what depth) to call
-the RiskLens API based on capital at risk.  Payment is handled by the x402
-protocol; this demo uses a stub X-PAYMENT header for presentation purposes.
-In production, the x402 SDK client would sign a real on-chain payment.
+the RiskLens API based on capital at risk.  Payment is handled automatically
+by the x402 SDK: on 402 response, the client signs an EIP-3009 USDC transfer
+authorization, attaches it as a payment header, and retries — the server's
+facilitator verifies and settles on-chain.
 
 Run:  python -m client.demo_client
-Requires the RiskLens server running on localhost:4021.
+Requires:
+  - RiskLens server running on localhost:4021
+  - CLIENT_PRIVATE_KEY in .env (Base Sepolia wallet with USDC + ETH for gas)
 """
 
 from __future__ import annotations
 
 import json
-import sys
-import textwrap
+import os
+import traceback
 
 import requests
+from dotenv import load_dotenv
+from eth_account import Account
+
+from x402 import x402ClientSync
+from x402.mechanisms.evm.exact.client import ExactEvmScheme
+from x402.http.clients.requests import wrapRequestsWithPayment
+
+load_dotenv()
 
 SERVER_URL = "http://localhost:4021"
+NETWORK = "eip155:84532"  # Base Sepolia
+
+# ── x402 client setup ────────────────────────────────────────────────────
+_PRIVATE_KEY = os.environ.get("CLIENT_PRIVATE_KEY", "")
+if not _PRIVATE_KEY:
+    raise EnvironmentError(
+        "CLIENT_PRIVATE_KEY not set in .env. "
+        "Provide a Base Sepolia wallet private key with USDC balance."
+    )
+
+_account = Account.from_key(_PRIVATE_KEY)
+print(f"  [x402] Client wallet: {_account.address}")
+
+# ExactEvmScheme auto-wraps LocalAccount via EthAccountSigner
+_evm_scheme = ExactEvmScheme(signer=_account)
+
+_x402_client = x402ClientSync()
+_x402_client.register(NETWORK, _evm_scheme)
+
+# Create a requests.Session that auto-handles 402 → sign → retry
+_session = wrapRequestsWithPayment(requests.Session(), _x402_client)
 
 # ── Pricing table (mirrors server ROUTE_CONFIG) ──────────────────────────
 TIERS = {
@@ -71,7 +103,7 @@ def evaluate(
     domain: str,
     target: str,
 ) -> None:
-    """Run one end-to-end scenario: route → decide → call (if needed) → print."""
+    """Run one end-to-end scenario: route → decide → pay → analyze → print."""
 
     sep = "=" * 72
     print(f"\n{sep}")
@@ -91,58 +123,57 @@ def evaluate(
         print("\n  >> Skipping API call — no payment needed.\n")
         return
 
-    # ── Make the API call ──
+    # ── Make the API call with x402 auto-payment ──
     depth = decision["depth"]
     tier = TIERS[depth]
     url = f"{SERVER_URL}{tier['endpoint']}"
     payload = {"domain": domain, "target": target}
 
-    print(f"\n  >> Calling {tier['endpoint']} ...")
+    print(f"\n  >> Calling {tier['endpoint']} with x402 payment ...")
 
     try:
-        # In production, this header would be a signed x402 payment payload
-        # created via x402ClientSync with a Base Sepolia wallet.
-        # For this demo, we send a stub header. If the server has x402 enabled
-        # it will return 402 (expected — no real on-chain payment). If running
-        # with the manual fallback middleware, any non-empty header is accepted.
-        resp = requests.post(
+        resp = _session.post(
             url,
             json=payload,
-            headers={
-                "Content-Type": "application/json",
-                "X-PAYMENT": "demo-stub-payment",
-            },
-            timeout=60,
+            headers={"Content-Type": "application/json"},
+            timeout=90,
         )
 
         if resp.status_code == 402:
-            print("  >> 402 Payment Required (expected in demo without real wallet)")
-            print("     x402 payment flow verified — server correctly gates access.")
-            # Pretty-print the payment requirements if available
-            pr_header = resp.headers.get("payment-required")
-            if pr_header:
-                import base64
-                try:
-                    decoded = json.loads(base64.b64decode(pr_header))
-                    print(f"     Payment info: scheme={decoded['accepts'][0]['scheme']}, "
-                          f"network={decoded['accepts'][0]['network']}, "
-                          f"amount={decoded['accepts'][0]['amount']}")
-                except Exception:
-                    pass
+            # Payment was attempted but failed (insufficient funds, sig error, etc.)
+            print("  >> 402 Payment Required — payment was rejected")
+            print(f"     Response headers: {dict(resp.headers)}")
+            print(f"     Body: {resp.text[:500]}")
             print()
             return
 
         if resp.status_code != 200:
             print(f"  >> Error: HTTP {resp.status_code}")
-            print(f"     {resp.text[:200]}")
+            print(f"     {resp.text[:500]}")
             print()
             return
 
+        # ── Success! Payment settled, analysis received ──
         data = resp.json()
         analysis = data.get("analysis", "")
-        print(f"  >> Analysis received ({data.get('depth', '?')} tier, "
+
+        # Check for settlement proof in response headers
+        payment_response = resp.headers.get("payment-response") or resp.headers.get("x-payment-response")
+
+        print(f"  >> Payment settled on Base Sepolia!")
+        if payment_response:
+            import base64
+            try:
+                pr_data = json.loads(base64.b64decode(payment_response))
+                tx_hash = pr_data.get("transaction", pr_data.get("txHash", ""))
+                if tx_hash:
+                    print(f"     Tx: {tx_hash}")
+                    print(f"     Explorer: https://sepolia.basescan.org/tx/{tx_hash}")
+            except Exception:
+                print(f"     Payment-Response: {payment_response[:80]}...")
+
+        print(f"\n  >> Analysis received ({data.get('depth', '?')} tier, "
               f"max_tokens={data.get('max_tokens', '?')}):\n")
-        # Wrap for terminal readability
         for line in analysis.split("\n"):
             print(f"     {line}")
         print()
@@ -151,13 +182,17 @@ def evaluate(
         print("  >> ERROR: Cannot connect to server. Is it running on port 4021?")
         print("     Start with: uvicorn server.main:app --port 4021")
         print()
+    except Exception as exc:
+        print(f"  >> ERROR: {type(exc).__name__}: {exc}")
+        traceback.print_exc()
+        print()
 
 
 # ── Main: run all four demo scenarios ─────────────────────────────────────
 if __name__ == "__main__":
     print("\n" + "~" * 72)
     print("  RiskLens Demo — Stakes-Based Routing for AI Agent Risk Analysis")
-    print("  Pay-per-call via x402 on Base Sepolia")
+    print("  LIVE x402 payments on Base Sepolia (real USDC transfers)")
     print("~" * 72)
 
     scenarios = [
@@ -171,6 +206,6 @@ if __name__ == "__main__":
         evaluate(name, capital, domain, target)
 
     print("~" * 72)
-    print("  Demo complete. In production, agents pay per call via x402.")
+    print("  Demo complete. Real USDC payments settled on Base Sepolia.")
     print("  Higher stakes → deeper analysis → higher cost → better decisions.")
     print("~" * 72 + "\n")
