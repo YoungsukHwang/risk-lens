@@ -4,7 +4,12 @@
 
 ## Demo Video
 
-[Loom walkthrough — to be added]
+[Watch the 3-minute walkthrough](https://amzn-s3-risk-lens-demo.s3.us-east-1.amazonaws.com/reports/demo.mp4)
+
+- Real x402 settlement on Base Sepolia (3 paid USDC transactions)
+- AWS S3 hosted public risk reports
+- BaseScan verification of all on-chain transactions
+- Stakes-based routing across 4 capital-tier scenarios
 
 ## Problem
 
